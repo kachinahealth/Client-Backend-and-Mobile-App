@@ -564,6 +564,17 @@
             margin-right: 0.5rem;
         }
 
+        .pdf-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .pdf-info {
+            flex: 1;
+        }
+
         .pdf-actions {
             display: flex;
             gap: 0.5rem;
@@ -689,6 +700,15 @@
             margin-top: 1rem;
         }
 
+        .materials-list {
+            margin-top: 2rem;
+        }
+
+        .materials-list h4 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
         .leaderboard-table {
             width: 100%;
             border-collapse: collapse;
@@ -702,6 +722,14 @@
             border-bottom: 1px solid #e0e0e0;
         }
 
+        .leaderboard-table td:last-child {
+            white-space: nowrap;
+            min-width: 150px;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
         .leaderboard-table th {
             background: #f5f5f5;
             font-weight: 600;
@@ -710,6 +738,26 @@
         .rank-1 { background: linear-gradient(135deg, #ffd700, #ffed4e); }
         .rank-2 { background: linear-gradient(135deg, #c0c0c0, #e0e0e0); }
         .rank-3 { background: linear-gradient(135deg, #cd7f32, #deb887); }
+
+        .btn-view {
+            background: #4caf50;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 0.5rem;
+        }
+
+        .btn-download {
+            background: #ff9800;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 0.5rem;
+        }
 
         .btn-edit {
             background: #2196f3;
@@ -1210,18 +1258,9 @@
                 <h3>Training Materials</h3>
                 <div class="alert alert-success" id="trainingAlert"></div>
                 
-                <div class="content-tabs">
-                    <button class="content-tab active" onclick="showTrainingContentTab('materials')">View Materials</button>
-                    <button class="content-tab" onclick="showTrainingContentTab('upload')">Upload New</button>
-                </div>
-
-                <div class="content-section active" id="trainingMaterialsSection">
-                    <h4>Available Training Materials</h4>
-                    <div id="trainingMaterialsList">Loading training materials...</div>
-                </div>
-
-                <div class="content-section" id="trainingUploadSection">
+                <!-- Add/Edit Training Material Form -->
                     <div class="news-form">
+                    <h4 id="trainingFormTitle">Add New Training Material</h4>
                         <div class="form-group">
                             <label for="trainingTitle">Title</label>
                             <input type="text" id="trainingTitle" placeholder="Enter training material title">
@@ -1266,27 +1305,26 @@
                             </div>
                         </div>
                         
-                        <button class="btn-primary" onclick="addTrainingMaterial()">Add Training Material</button>
+                    <div class="form-actions">
+                        <button class="btn-primary" onclick="addTrainingMaterial()" id="trainingSubmitBtn">Add Training Material</button>
+                        <button class="btn" onclick="cancelTrainingMaterialEdit()" id="trainingCancelBtn" style="display: none;">Cancel Edit</button>
                     </div>
+                </div>
+
+                <!-- Training Materials List -->
+                <div class="materials-list">
+                    <h4>Available Training Materials</h4>
+                    <div id="trainingMaterialsList">Loading training materials...</div>
                 </div>
             </div>
 
-            <div class="tab-content" id="tab4">
+            <div class="tab-content" id="tab5">
                 <h3>Study Protocol</h3>
                 <div class="alert alert-success" id="protocolAlert"></div>
                 
-                <div class="content-tabs">
-                    <button class="content-tab active" onclick="showProtocolContentTab('protocols')">View Protocols</button>
-                    <button class="content-tab" onclick="showProtocolContentTab('upload')">Upload New</button>
-                </div>
-
-                <div class="content-section active" id="studyProtocolsSection">
-                    <h4>Available Study Protocols</h4>
-                    <div id="studyProtocolsList">Loading study protocols...</div>
-                </div>
-
-                <div class="content-section" id="protocolUploadSection">
+                <!-- Add/Edit Study Protocol Form -->
                     <div class="news-form">
+                    <h4 id="protocolFormTitle">Add New Study Protocol</h4>
                         <div class="form-group">
                             <label for="protocolTitle">Protocol Title</label>
                             <input type="text" id="protocolTitle" placeholder="Enter protocol title">
@@ -1325,8 +1363,16 @@
                             </div>
                         </div>
                         
-                        <button class="btn-primary" onclick="addStudyProtocol()">Add Study Protocol</button>
+                    <div class="form-actions">
+                        <button class="btn-primary" onclick="addStudyProtocol()" id="protocolSubmitBtn">Add Study Protocol</button>
+                        <button class="btn" onclick="cancelStudyProtocolEdit()" id="protocolCancelBtn" style="display: none;">Cancel Edit</button>
                     </div>
+                </div>
+
+                <!-- Study Protocols List -->
+                <div class="materials-list">
+                    <h4>Available Study Protocols</h4>
+                    <div id="studyProtocolsList">Loading study protocols...</div>
                 </div>
             </div>
 
@@ -1552,9 +1598,13 @@
             tabContents[index].classList.add('active');
             tabButtons[index].classList.add('active');
 
-            // Load trials when Clinical Trials tab is shown
+            // Load content when tabs are shown
             if (index === 3) {
-                loadTrials();
+                loadTrials(); // Clinical Trials tab
+            } else if (index === 4) {
+                loadTrainingMaterials(); // Training Materials tab
+            } else if (index === 5) {
+                loadStudyProtocols(); // Study Protocol tab
             }
         }
 
@@ -1672,7 +1722,7 @@
                         </span>
                     </td>
                     <td>
-                        <button onclick="editUser('${user.id}')" class="btn-small">Edit</button>
+                        <button onclick="editUser('${user.id}')" class="btn-edit">Edit</button>
                         <button onclick="deleteUser('${user.id}')" class="btn-delete">Delete</button>
                     </td>
                 </tr>
@@ -1962,7 +2012,7 @@
                     <td>${trial.start_date ? new Date(trial.start_date).toLocaleDateString() : ''}</td>
                     <td>${trial.end_date ? new Date(trial.end_date).toLocaleDateString() : ''}</td>
                     <td>
-                        <button onclick="editTrial('${trial.id}')" class="btn-small">Edit</button>
+                        <button onclick="editTrial('${trial.id}')" class="btn-edit">Edit</button>
                         <button onclick="deleteTrial('${trial.id}')" class="btn-delete">Delete</button>
                     </td>
                 </tr>
@@ -2102,6 +2152,8 @@
         let editingNewsId = null;
         let editingUserId = null;
         let editingTrialId = null;
+        let editingTrainingMaterialId = null;
+        let editingStudyProtocolId = null;
 
         // ============================================================================
         // CLINICAL TRIALS DROPDOWN FUNCTIONS
@@ -2520,7 +2572,7 @@
                     <td>${hospital.randomized_patients}</td>
                     <td>${hospital.consent_rate}%</td>
                     <td>
-                        <button onclick="editHospital('${hospital.id}')" class="btn-small">Edit</button>
+                        <button onclick="editHospital('${hospital.id}')" class="btn-edit">Edit</button>
                         <button onclick="deleteHospital('${hospital.id}')" class="btn-delete">Delete</button>
                     </td>
                 </tr>
@@ -3087,27 +3139,6 @@ ${endpointStatus.join('\n')}
         }
 
         // Training Materials Functions
-        function showTrainingContentTab(tabName) {
-            // Hide all content sections
-            document.querySelectorAll('#tab3 .content-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            
-            // Remove active class from all tab buttons
-            document.querySelectorAll('#tab3 .content-tab').forEach(button => {
-                button.classList.remove('active');
-            });
-            
-            // Show selected section and mark button as active
-            if (tabName === 'materials') {
-                document.getElementById('trainingMaterialsSection').classList.add('active');
-                event.target.classList.add('active');
-                loadTrainingMaterials();
-            } else if (tabName === 'upload') {
-                document.getElementById('trainingUploadSection').classList.add('active');
-                event.target.classList.add('active');
-            }
-        }
 
         function toggleTrainingUploadOptions() {
             const type = document.getElementById('trainingType').value;
@@ -3161,6 +3192,7 @@ ${endpointStatus.join('\n')}
             
             list.innerHTML = materials.map(material => `
                 <div class="pdf-item">
+                    <div class="pdf-content">
                     <div class="pdf-info">
                         <h5>${material.title}</h5>
                         <p>${material.description}</p>
@@ -3171,9 +3203,79 @@ ${endpointStatus.join('\n')}
                         </small>
                         ${material.type === 'text' ? `<div style="margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 4px; white-space: pre-wrap; font-family: monospace; max-height: 200px; overflow-y: auto;">${material.content}</div>` : ''}
                     </div>
+                        <div class="pdf-actions">
+                            <button class="btn-view" onclick="viewTrainingMaterial('${material.id}')">View</button>
+                            <button class="btn-download" onclick="downloadTrainingMaterial('${material.id}')">Download</button>
+                            <button class="btn-edit" onclick="editTrainingMaterial('${material.id}')">Edit</button>
                     <button class="btn-delete" onclick="deleteTrainingMaterial('${material.id}')">Delete</button>
+                        </div>
+                    </div>
                 </div>
             `).join('');
+        }
+
+        async function editTrainingMaterial(materialId) {
+            try {
+                // Fetch the training material data directly
+                const response = await fetch('http://localhost:5000/api/training-materials', {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error('Failed to fetch training materials');
+                }
+
+                const material = data.trainingMaterials.find(m => m.id === materialId);
+
+                if (!material) {
+                    showAlert('trainingAlert', 'Training material not found', 'error');
+                    return;
+                }
+
+                // Populate the form with existing data
+                document.getElementById('trainingTitle').value = material.title || '';
+                document.getElementById('trainingDescription').value = material.description || '';
+                document.getElementById('trainingType').value = material.type || '';
+                document.getElementById('trainingCategory').value = material.category || '';
+
+                // Handle content based on type
+                if (material.type === 'text') {
+                    document.getElementById('textContentSection').style.display = 'block';
+                    document.getElementById('trainingTextContent').value = material.content || '';
+                    document.getElementById('fileUploadSection').style.display = 'none';
+                } else if (material.type === 'pdf' || material.type === 'video') {
+                    document.getElementById('textContentSection').style.display = 'none';
+                    document.getElementById('fileUploadSection').style.display = 'block';
+                    // Note: File inputs can't be pre-populated for security reasons
+                }
+
+                // Update form state
+                const formTitle = document.querySelector('#tab4 h3');
+                if (formTitle) {
+                    formTitle.textContent = 'Edit Training Material';
+                }
+                const submitBtn = document.getElementById('trainingSubmitBtn');
+                if (submitBtn) {
+                    submitBtn.textContent = 'Update Training Material';
+                }
+                const cancelBtn = document.getElementById('trainingCancelBtn');
+                if (cancelBtn) {
+                    cancelBtn.style.display = 'inline-block';
+                }
+                editingTrainingMaterialId = materialId;
+
+                // Scroll to form and highlight it
+                document.getElementById('trainingTitle').scrollIntoView({ behavior: 'smooth' });
+                document.getElementById('trainingTitle').focus();
+
+                showAlert('trainingAlert', 'Edit the training material and click "Update Training Material"', 'info');
+            } catch (error) {
+                console.error('Error loading training material for edit:', error);
+                showAlert('trainingAlert', 'Error loading training material for edit', 'error');
+            }
         }
 
         async function addTrainingMaterial() {
@@ -3205,9 +3307,16 @@ ${endpointStatus.join('\n')}
             }
             
             try {
-                // Temporary: Call backend API for testing
-                const response = await fetch('http://localhost:5000/api/training-materials', {
-                    method: 'POST',
+                console.log('Sending training material data:', { title, description, type, content, category, editingTrainingMaterialId });
+
+                const isEditing = editingTrainingMaterialId !== null;
+                const method = isEditing ? 'PUT' : 'POST';
+                const url = isEditing
+                    ? `http://localhost:5000/api/training-materials/${editingTrainingMaterialId}`
+                    : 'http://localhost:5000/api/training-materials';
+
+                const response = await fetch(url, {
+                    method: method,
                     headers: {
                         'Content-Type': 'application/json',
                     },
@@ -3220,26 +3329,188 @@ ${endpointStatus.join('\n')}
                     })
                 });
                 
+                console.log('Response status:', response.status);
                 const data = await response.json();
-                
-                if (response.ok) {
-                    showAlert('trainingAlert', 'Training material added successfully!', 'success');
+                console.log('Response data:', data);
+
+                if (response.ok && data.success) {
+                    showAlert('trainingAlert', `Training material ${isEditing ? 'updated' : 'added'} successfully!`, 'success');
+
+                    // Clear form and reset edit state
+                    cancelTrainingMaterialEdit();
+
+                    // Small delay before refreshing to ensure backend processing is complete
+                    setTimeout(() => {
+                        loadTrainingMaterials(); // Refresh list
+                    }, 500);
+                } else {
+                    showAlert('trainingAlert', data.message || `Failed to ${isEditing ? 'update' : 'add'} training material`, 'error');
+                    console.error('Backend error:', data);
+                }
+            } catch (error) {
+                showAlert('trainingAlert', 'Error adding training material - but data may have been saved. Please refresh to check.', 'warning');
+                console.error('Frontend error:', error);
+            }
+        }
+
+        function cancelTrainingMaterialEdit() {
                     // Clear form
                     document.getElementById('trainingTitle').value = '';
                     document.getElementById('trainingDescription').value = '';
                     document.getElementById('trainingType').value = '';
                     document.getElementById('trainingTextContent').value = '';
                     document.getElementById('trainingFile').value = '';
+            document.getElementById('trainingCategory').value = '';
                     document.getElementById('textContentSection').style.display = 'none';
                     document.getElementById('fileUploadSection').style.display = 'none';
                     
-                    loadTrainingMaterials(); // Refresh list
-                } else {
-                    showAlert('trainingAlert', data.error || 'Failed to add training material', 'error');
+            // Reset form state
+            const formTitle = document.querySelector('#tab4 h3');
+            if (formTitle) {
+                formTitle.textContent = 'Training Materials';
+            }
+            const submitBtn = document.getElementById('trainingSubmitBtn');
+            if (submitBtn) {
+                submitBtn.textContent = 'Add Training Material';
+            }
+            const cancelBtn = document.getElementById('trainingCancelBtn');
+            if (cancelBtn) {
+                cancelBtn.style.display = 'none';
+            }
+
+            // Reset editing state
+            editingTrainingMaterialId = null;
+        }
+
+        async function viewTrainingMaterial(materialId) {
+            try {
+                // Fetch the training material data directly
+                const response = await fetch('http://localhost:5000/api/training-materials', {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error('Failed to fetch training materials');
+                }
+
+                const material = data.trainingMaterials.find(m => m.id === materialId);
+
+                if (!material) {
+                    showAlert('trainingAlert', 'Training material not found', 'error');
+                    return;
+                }
+
+                if (material.type === 'text') {
+                    // Show text content in a modal or alert
+                    const modal = document.createElement('div');
+                    modal.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0,0,0,0.7);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        z-index: 10000;
+                    `;
+
+                    const modalContent = document.createElement('div');
+                    modalContent.style.cssText = `
+                        background: white;
+                        padding: 20px;
+                        border-radius: 8px;
+                        max-width: 80%;
+                        max-height: 80%;
+                        overflow-y: auto;
+                        position: relative;
+                    `;
+
+                    modalContent.innerHTML = `
+                        <h3>${material.title}</h3>
+                        <div style="margin: 10px 0; color: #666;">
+                            <strong>Category:</strong> ${material.category} |
+                            <strong>Type:</strong> ${material.type} |
+                            <strong>Created by:</strong> ${material.createdBy}
+                        </div>
+                        <pre style="white-space: pre-wrap; font-family: monospace; background: #f5f5f5; padding: 15px; border-radius: 4px; margin-top: 15px;">${material.content}</pre>
+                        <button onclick="this.parentElement.parentElement.remove()" style="margin-top: 15px; padding: 8px 16px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer;">Close</button>
+                    `;
+
+                    modal.appendChild(modalContent);
+                    document.body.appendChild(modal);
+
+                    // Close modal when clicking outside
+                    modal.addEventListener('click', function(e) {
+                        if (e.target === modal) {
+                            modal.remove();
+                        }
+                    });
+                } else if (material.type === 'pdf' || material.type === 'video') {
+                    // For files, open in new tab/window for viewing
+                    const fileUrl = material.content.startsWith('http') ? material.content : `data:text/plain;base64,${btoa(material.content)}`;
+                    window.open(fileUrl, '_blank');
                 }
             } catch (error) {
-                showAlert('trainingAlert', 'Error adding training material', 'error');
-                console.error('Error:', error);
+                console.error('Error viewing training material:', error);
+                showAlert('trainingAlert', 'Error viewing training material', 'error');
+            }
+        }
+
+        async function downloadTrainingMaterial(materialId) {
+            try {
+                // Fetch the training material data directly
+                const response = await fetch('http://localhost:5000/api/training-materials', {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error('Failed to fetch training materials');
+                }
+
+                const material = data.trainingMaterials.find(m => m.id === materialId);
+
+                if (!material) {
+                    showAlert('trainingAlert', 'Training material not found', 'error');
+                    return;
+                }
+
+                if (material.type === 'text') {
+                    // Download text content as a file
+                    const blob = new Blob([material.content], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${material.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.txt`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                } else if (material.type === 'pdf' || material.type === 'video') {
+                    // For files, trigger download
+                    const link = document.createElement('a');
+                    if (material.content.startsWith('http')) {
+                        link.href = material.content;
+                } else {
+                        // Assume it's a filename or path
+                        link.href = material.content;
+                    }
+                    link.download = material.content.split('/').pop() || `${material.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.${material.type === 'pdf' ? 'pdf' : 'mp4'}`;
+                    link.target = '_blank';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            } catch (error) {
+                console.error('Error downloading training material:', error);
+                showAlert('trainingAlert', 'Error downloading training material', 'error');
             }
         }
 
@@ -3247,7 +3518,7 @@ ${endpointStatus.join('\n')}
             if (!confirm('Are you sure you want to delete this training material?')) return;
 
             try {
-                const response = await fetch(`http://localhost:3000/api/company/${currentCompany}/training-materials/${materialId}`, {
+                const response = await fetch(`http://localhost:5000/api/training-materials/${materialId}`, {
                     method: 'DELETE'
                 });
                 
@@ -3266,27 +3537,6 @@ ${endpointStatus.join('\n')}
         }
 
         // Study Protocol Functions
-        function showProtocolContentTab(tabName) {
-            // Hide all content sections
-            document.querySelectorAll('#tab4 .content-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            
-            // Remove active class from all tab buttons
-            document.querySelectorAll('#tab4 .content-tab').forEach(button => {
-                button.classList.remove('active');
-            });
-            
-            // Show selected section and mark button as active
-            if (tabName === 'protocols') {
-                document.getElementById('studyProtocolsSection').classList.add('active');
-                event.target.classList.add('active');
-                loadStudyProtocols();
-            } else if (tabName === 'upload') {
-                document.getElementById('protocolUploadSection').classList.add('active');
-                event.target.classList.add('active');
-            }
-        }
 
         function toggleProtocolUploadOptions() {
             const type = document.getElementById('protocolType').value;
@@ -3334,6 +3584,7 @@ ${endpointStatus.join('\n')}
             
             list.innerHTML = protocols.map(protocol => `
                 <div class="pdf-item">
+                    <div class="pdf-content">
                     <div class="pdf-info">
                         <h5>${protocol.title} <span style="color: #666; font-size: 0.8em;">v${protocol.version}</span></h5>
                         <p>${protocol.description}</p>
@@ -3343,9 +3594,79 @@ ${endpointStatus.join('\n')}
                         </small>
                         ${protocol.type === 'text' ? `<div style="margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 4px; white-space: pre-wrap; font-family: monospace; max-height: 300px; overflow-y: auto;">${protocol.content}</div>` : ''}
                     </div>
+                        <div class="pdf-actions">
+                            <button class="btn-view" onclick="viewStudyProtocol('${protocol.id}')">View</button>
+                            <button class="btn-download" onclick="downloadStudyProtocol('${protocol.id}')">Download</button>
+                            <button class="btn-edit" onclick="editStudyProtocol('${protocol.id}')">Edit</button>
                     <button class="btn-delete" onclick="deleteStudyProtocol('${protocol.id}')">Delete</button>
+                        </div>
+                    </div>
                 </div>
             `).join('');
+        }
+
+        async function editStudyProtocol(protocolId) {
+            try {
+                // Fetch the study protocol data directly
+                const response = await fetch('http://localhost:5000/api/study-protocols', {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error('Failed to fetch study protocols');
+                }
+
+                const protocol = data.studyProtocols.find(p => p.id === protocolId);
+
+                if (!protocol) {
+                    showAlert('protocolAlert', 'Study protocol not found', 'error');
+                    return;
+                }
+
+                // Populate the form with existing data
+                document.getElementById('protocolTitle').value = protocol.title || '';
+                document.getElementById('protocolDescription').value = protocol.description || '';
+                document.getElementById('protocolType').value = protocol.type || '';
+                document.getElementById('protocolVersion').value = protocol.version || '';
+
+                // Handle content based on type
+                if (protocol.type === 'text') {
+                    document.getElementById('protocolTextContentSection').style.display = 'block';
+                    document.getElementById('protocolTextContent').value = protocol.content || '';
+                    document.getElementById('protocolFileUploadSection').style.display = 'none';
+                } else if (protocol.type === 'pdf') {
+                    document.getElementById('protocolTextContentSection').style.display = 'none';
+                    document.getElementById('protocolFileUploadSection').style.display = 'block';
+                    // Note: File inputs can't be pre-populated for security reasons
+                }
+
+                // Update form state
+                const formTitle = document.querySelector('#tab5 h3');
+                if (formTitle) {
+                    formTitle.textContent = 'Edit Study Protocol';
+                }
+                const submitBtn = document.getElementById('protocolSubmitBtn');
+                if (submitBtn) {
+                    submitBtn.textContent = 'Update Study Protocol';
+                }
+                const cancelBtn = document.getElementById('protocolCancelBtn');
+                if (cancelBtn) {
+                    cancelBtn.style.display = 'inline-block';
+                }
+                editingStudyProtocolId = protocolId;
+
+                // Scroll to form and highlight it
+                document.getElementById('protocolTitle').scrollIntoView({ behavior: 'smooth' });
+                document.getElementById('protocolTitle').focus();
+
+                showAlert('protocolAlert', 'Edit the study protocol and click "Update Study Protocol"', 'info');
+            } catch (error) {
+                console.error('Error loading study protocol for edit:', error);
+                showAlert('protocolAlert', 'Error loading study protocol for edit', 'error');
+            }
         }
 
         async function addStudyProtocol() {
@@ -3377,9 +3698,16 @@ ${endpointStatus.join('\n')}
             }
             
             try {
-                // Temporary: Call backend API for testing
-                const response = await fetch('http://localhost:5000/api/study-protocols', {
-                    method: 'POST',
+                console.log('Sending study protocol data:', { title, description, type, content, version, editingStudyProtocolId });
+
+                const isEditing = editingStudyProtocolId !== null;
+                const method = isEditing ? 'PUT' : 'POST';
+                const url = isEditing
+                    ? `http://localhost:5000/api/study-protocols/${editingStudyProtocolId}`
+                    : 'http://localhost:5000/api/study-protocols';
+
+                const response = await fetch(url, {
+                    method: method,
                     headers: {
                         'Content-Type': 'application/json',
                     },
@@ -3392,10 +3720,31 @@ ${endpointStatus.join('\n')}
                     })
                 });
                 
+                console.log('Response status:', response.status);
                 const data = await response.json();
-                
-                if (response.ok) {
-                    showAlert('protocolAlert', 'Study protocol added successfully!', 'success');
+                console.log('Response data:', data);
+
+                if (response.ok && data.success) {
+                    showAlert('protocolAlert', `Study protocol ${isEditing ? 'updated' : 'added'} successfully!`, 'success');
+
+                    // Clear form and reset edit state
+                    cancelStudyProtocolEdit();
+
+                    // Small delay before refreshing to ensure backend processing is complete
+                    setTimeout(() => {
+                        loadStudyProtocols(); // Refresh list
+                    }, 500);
+                } else {
+                    showAlert('protocolAlert', data.message || `Failed to ${isEditing ? 'update' : 'add'} study protocol`, 'error');
+                    console.error('Backend error:', data);
+                }
+            } catch (error) {
+                showAlert('protocolAlert', 'Error adding study protocol - but data may have been saved. Please refresh to check.', 'warning');
+                console.error('Frontend error:', error);
+            }
+        }
+
+        function cancelStudyProtocolEdit() {
                     // Clear form
                     document.getElementById('protocolTitle').value = '';
                     document.getElementById('protocolDescription').value = '';
@@ -3406,13 +3755,152 @@ ${endpointStatus.join('\n')}
                     document.getElementById('protocolTextContentSection').style.display = 'none';
                     document.getElementById('protocolFileUploadSection').style.display = 'none';
                     
-                    loadStudyProtocols(); // Refresh list
-                } else {
-                    showAlert('protocolAlert', data.error || 'Failed to add study protocol', 'error');
+            // Reset form state
+            const formTitle = document.querySelector('#tab5 h3');
+            if (formTitle) {
+                formTitle.textContent = 'Study Protocol';
+            }
+            const submitBtn = document.getElementById('protocolSubmitBtn');
+            if (submitBtn) {
+                submitBtn.textContent = 'Add Study Protocol';
+            }
+            const cancelBtn = document.getElementById('protocolCancelBtn');
+            if (cancelBtn) {
+                cancelBtn.style.display = 'none';
+            }
+
+            // Reset editing state
+            editingStudyProtocolId = null;
+        }
+
+        async function viewStudyProtocol(protocolId) {
+            try {
+                // Fetch the study protocol data directly
+                const response = await fetch('http://localhost:5000/api/study-protocols', {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error('Failed to fetch study protocols');
+                }
+
+                const protocol = data.studyProtocols.find(p => p.id === protocolId);
+
+                if (!protocol) {
+                    showAlert('protocolAlert', 'Study protocol not found', 'error');
+                    return;
+                }
+
+                if (protocol.type === 'text') {
+                    // Show text content in a modal
+                    const modal = document.createElement('div');
+                    modal.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0,0,0,0.7);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        z-index: 10000;
+                    `;
+
+                    const modalContent = document.createElement('div');
+                    modalContent.style.cssText = `
+                        background: white;
+                        padding: 20px;
+                        border-radius: 8px;
+                        max-width: 80%;
+                        max-height: 80%;
+                        overflow-y: auto;
+                        position: relative;
+                    `;
+
+                    modalContent.innerHTML = `
+                        <h3>${protocol.title} <span style="color: #666; font-size: 0.8em;">v${protocol.version}</span></h3>
+                        <div style="margin: 10px 0; color: #666;">
+                            <strong>Type:</strong> ${protocol.type} |
+                            <strong>Created by:</strong> ${protocol.createdBy}
+                        </div>
+                        <pre style="white-space: pre-wrap; font-family: monospace; background: #f5f5f5; padding: 15px; border-radius: 4px; margin-top: 15px;">${protocol.content}</pre>
+                        <button onclick="this.parentElement.parentElement.remove()" style="margin-top: 15px; padding: 8px 16px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer;">Close</button>
+                    `;
+
+                    modal.appendChild(modalContent);
+                    document.body.appendChild(modal);
+
+                    // Close modal when clicking outside
+                    modal.addEventListener('click', function(e) {
+                        if (e.target === modal) {
+                            modal.remove();
+                        }
+                    });
+                } else if (protocol.type === 'pdf') {
+                    // For PDF files, open in new tab/window for viewing
+                    const fileUrl = protocol.content.startsWith('http') ? protocol.content : `data:application/pdf;base64,${btoa(protocol.content)}`;
+                    window.open(fileUrl, '_blank');
                 }
             } catch (error) {
-                showAlert('protocolAlert', 'Error adding study protocol', 'error');
-                console.error('Error:', error);
+                console.error('Error viewing study protocol:', error);
+                showAlert('protocolAlert', 'Error viewing study protocol', 'error');
+            }
+        }
+
+        async function downloadStudyProtocol(protocolId) {
+            try {
+                // Fetch the study protocol data directly
+                const response = await fetch('http://localhost:5000/api/study-protocols', {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error('Failed to fetch study protocols');
+                }
+
+                const protocol = data.studyProtocols.find(p => p.id === protocolId);
+
+                if (!protocol) {
+                    showAlert('protocolAlert', 'Study protocol not found', 'error');
+                    return;
+                }
+
+                if (protocol.type === 'text') {
+                    // Download text content as a file
+                    const blob = new Blob([protocol.content], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${protocol.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_v${protocol.version}.txt`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                } else if (protocol.type === 'pdf') {
+                    // For PDF files, trigger download
+                    const link = document.createElement('a');
+                    if (protocol.content.startsWith('http')) {
+                        link.href = protocol.content;
+                    } else {
+                        // Assume it's a filename or path
+                        link.href = protocol.content;
+                    }
+                    link.download = protocol.content.split('/').pop() || `${protocol.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_v${protocol.version}.pdf`;
+                    link.target = '_blank';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            } catch (error) {
+                console.error('Error downloading study protocol:', error);
+                showAlert('protocolAlert', 'Error downloading study protocol', 'error');
             }
         }
 
@@ -3420,7 +3908,7 @@ ${endpointStatus.join('\n')}
             if (!confirm('Are you sure you want to delete this study protocol?')) return;
 
             try {
-                const response = await fetch(`http://localhost:3000/api/company/${currentCompany}/study-protocols/${protocolId}`, {
+                const response = await fetch(`http://localhost:5000/api/study-protocols/${protocolId}`, {
                     method: 'DELETE'
                 });
                 

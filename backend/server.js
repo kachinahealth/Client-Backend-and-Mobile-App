@@ -1229,52 +1229,39 @@ app.delete('/api/hospitals/:id', authenticateToken, async (req, res) => {
 // Get all training materials (temporary unauthenticated access for testing)
 app.get('/api/training-materials', async (req, res) => {
   try {
-    // Mock data for testing
-    const mockTrainingMaterials = [
-      {
-        id: '1',
-        title: 'Clinical Trial Safety Protocols',
-        description: 'Comprehensive guide to safety protocols in clinical trials',
-        type: 'text',
-        content: 'Detailed content about clinical trial safety...',
-        category: 'Safety Training',
-        created_by: 'admin',
-        created_by_name: 'Admin',
-        upload_date: new Date().toISOString(),
-        is_active: true,
-        created_at: new Date().toISOString()
-      },
-      {
-        id: '2',
-        title: 'Patient Consent Procedures',
-        description: 'Step-by-step guide to obtaining informed patient consent',
-        type: 'text',
-        content: 'Patient consent procedure content...',
-        category: 'Procedure Training',
-        created_by: 'admin',
-        created_by_name: 'Admin',
-        upload_date: new Date().toISOString(),
-        is_active: true,
-        created_at: new Date().toISOString()
-      },
-      {
-        id: '3',
-        title: 'Data Management Best Practices',
-        description: 'Best practices for managing clinical trial data',
-        type: 'pdf',
-        content: 'https://example.com/data-management.pdf',
-        category: 'Compliance',
-        created_by: 'admin',
-        created_by_name: 'Admin',
-        upload_date: new Date().toISOString(),
-        is_active: true,
-        created_at: new Date().toISOString()
-      }
-    ];
+    const { data, error } = await supabase
+      .from('training_materials')
+      .select('*')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
 
+    if (error) {
+      console.error('Supabase error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to fetch training materials'
+      });
+    }
+
+    // Format the data for frontend
+    const trainingMaterials = data.map(material => ({
+      id: material.id,
+      title: material.title,
+      description: material.description,
+      type: material.type,
+      content: material.content,
+      category: material.category,
+      created_by: material.created_by,
+      created_by_name: material.created_by_name || 'Unknown',
+      upload_date: material.created_at,
+      is_active: material.is_active,
+      created_at: material.created_at
+    }));
+
+    console.log(`📊 Returning ${trainingMaterials.length} training materials to frontend`);
     res.json({
       success: true,
-      trainingMaterials: mockTrainingMaterials
+      trainingMaterials: trainingMaterials
     });
   } catch (err) {
     console.error('Training materials fetch error:', err);
@@ -1326,8 +1313,58 @@ app.post('/api/training-materials', async (req, res) => {
   }
 });
 
+// Update training material
+app.put('/api/training-materials/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description, type, content, category } = req.body;
+
+    if (!title || !type) {
+      return res.status(400).json({
+        success: false,
+        message: 'Title and type are required'
+      });
+    }
+
+    const { data, error } = await supabase
+      .from('training_materials')
+      .update({
+        title,
+        description,
+        type,
+        content,
+        category,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to update training material'
+      });
+    }
+
+    console.log('✅ Training material updated successfully:', data.id);
+    res.json({
+      success: true,
+      message: 'Training material updated successfully',
+      trainingMaterial: data
+    });
+  } catch (err) {
+    console.error('Training material update error:', err);
+    res.status(500).json({
+      success: false,
+      message: 'An unexpected error occurred'
+    });
+  }
+});
+
 // Delete training material
-app.delete('/api/training-materials/:id', authenticateToken, async (req, res) => {
+app.delete('/api/training-materials/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -1459,8 +1496,58 @@ app.post('/api/study-protocols', async (req, res) => {
   }
 });
 
+// Update study protocol
+app.put('/api/study-protocols/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description, type, content, version } = req.body;
+
+    if (!title || !type) {
+      return res.status(400).json({
+        success: false,
+        message: 'Title and type are required'
+      });
+    }
+
+    const { data, error } = await supabase
+      .from('study_protocols')
+      .update({
+        title,
+        description,
+        type,
+        content,
+        version,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to update study protocol'
+      });
+    }
+
+    console.log('✅ Study protocol updated successfully:', data.id);
+    res.json({
+      success: true,
+      message: 'Study protocol updated successfully',
+      studyProtocol: data
+    });
+  } catch (err) {
+    console.error('Study protocol update error:', err);
+    res.status(500).json({
+      success: false,
+      message: 'An unexpected error occurred'
+    });
+  }
+});
+
 // Delete study protocol
-app.delete('/api/study-protocols/:id', authenticateToken, async (req, res) => {
+app.delete('/api/study-protocols/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
