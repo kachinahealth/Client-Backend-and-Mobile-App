@@ -1,0 +1,5 @@
+<svg width="200" height="80" viewBox="0 0 200 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+<text x="100" y="40" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#d32f2f">Medtronic</text>
+<path d="M160 20L180 40L160 60L140 40Z" fill="#d32f2f"/>
+<path d="M180 40L160 60L140 40L160 20Z" fill="#d32f2f"/>
+</svg>
