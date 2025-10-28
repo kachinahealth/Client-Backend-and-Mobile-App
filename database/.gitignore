@@ -1,0 +1,9 @@
+# Database files to ignore
+*.log
+*.tmp
+*.bak
+secrets.sql
+*password*
+*secret*
+.env
+*.local
