@@ -33,9 +33,11 @@ if not exist "%FRONTEND_PATH%" (
 )
 
 REM Check if .env file exists in backend
-if not exist "%BACKEND_PATH%\.env" (
+if exist "%BACKEND_PATH%\.env" (
+    echo ✅ Found .env file in backend directory with database credentials configured
+) else (
     echo ⚠️  Warning: .env file not found in backend directory
-    echo Please create a .env file with your Supabase credentials before starting.
+    echo Please ensure a .env file exists with your Supabase credentials.
     echo See README.md for environment variable setup.
     echo.
 )

@@ -3201,16 +3201,20 @@ app.post('/api/upload', authenticateToken, upload.single('file'), async (req, re
 
     // Store file reference in database
     const { data: fileData, error: fileError } = await supabase
-      .from('files')
+      .from('news_updates')
       .insert({
         organization_id: userProfile.organization_id,
-        bucket: bucket,
-        path: filename,
-        uploaded_by: req.user.userId,
+        clinical_trial_id: req.body.clinical_trial_id || null, // Optional - can be null
+        title: req.body.title || req.file.originalname,
+        content_type: 'file',
+        body: req.body.description || null,
+        file_url: `${process.env.SUPABASE_URL}/storage/v1/object/public/${bucket}/${filename}`,
         file_name: req.file.originalname,
         file_size: req.file.size,
         mime_type: req.file.mimetype,
-        clinical_trial_id: req.body.clinical_trial_id || null
+        storage_bucket: bucket,
+        storage_path: filename,
+        created_by: req.user.userId
       })
       .select()
       .single();
@@ -3869,14 +3873,14 @@ app.delete('/api/study-protocols/:id', authenticateToken, async (req, res) => {
 
 // ===== PDF DOCUMENTS =====
 
-// Get all PDF documents
+// Get all PDF documents (now from news_updates table)
 app.get('/api/pdfs', authenticateToken, async (req, res) => {
   try {
     const { data, error } = await supabase
-      .from('pdf_documents')
+      .from('news_updates')
       .select('*')
-      .eq('is_active', true)
-      .order('upload_date', { ascending: false });
+      .eq('content_type', 'file')
+      .order('created_at', { ascending: false });
 
     if (error) {
       return res.status(400).json({
@@ -3978,18 +3982,22 @@ app.post('/api/company/:company/documents', authenticateToken, upload.single('fi
       documentData.bucket = bucket;
     }
 
-    // Insert document into files table (for general documents)
+    // Insert document into news_updates table
     const { data: insertedDocument, error: insertError } = await supabaseAdmin
-      .from('files')
+      .from('news_updates')
       .insert([{
         organization_id: userProfile.organization_id,
-        bucket: documentData.bucket || 'trial-documents',
-        path: documentData.file_path || filename,
-        uploaded_by: req.user.userId,
+        clinical_trial_id: req.body.clinical_trial_id || null, // Optional - can be null
+        title: documentData.title || documentData.file_name,
+        content_type: 'file',
+        body: documentData.description || null,
+        file_url: documentData.file_url,
         file_name: documentData.file_name,
         file_size: documentData.file_size,
         mime_type: documentData.mime_type,
-        clinical_trial_id: req.body.clinical_trial_id || null
+        storage_bucket: documentData.bucket || 'trial-documents',
+        storage_path: documentData.file_path || filename,
+        created_by: req.user.userId
       }])
       .select()
       .single();
@@ -4027,10 +4035,10 @@ app.post('/api/company/:company/documents', authenticateToken, upload.single('fi
   }
 });
 
-// Create PDF document
+// Create PDF document (now in news_updates table)
 app.post('/api/pdfs', authenticateToken, async (req, res) => {
   try {
-    const { title, description, category, fileUrl, fileName, fileSize } = req.body;
+    const { title, description, category, fileUrl, fileName, fileSize, clinical_trial_id } = req.body;
 
     if (!title) {
       return res.status(400).json({
@@ -4040,16 +4048,18 @@ app.post('/api/pdfs', authenticateToken, async (req, res) => {
     }
 
     const { data, error } = await supabase
-      .from('pdf_documents')
+      .from('news_updates')
       .insert([{
         title,
-        description,
-        category,
+        content_type: 'file',
+        body: description,
         file_url: fileUrl,
         file_name: fileName,
         file_size: fileSize,
-        uploaded_by: req.user.userId,
-        uploaded_by_name: req.user.email
+        mime_type: 'application/pdf',
+        organization_id: req.user.organization_id,
+        clinical_trial_id: clinical_trial_id || null, // Optional - can be null
+        created_by: req.user.userId
       }])
       .select()
       .single();
@@ -4073,18 +4083,18 @@ app.post('/api/pdfs', authenticateToken, async (req, res) => {
       success: false,
       message: 'An unexpected error occurred'
     });
-  }
 });
 
-// Delete PDF document
+// Delete PDF document (now from news_updates table)
 app.delete('/api/pdfs/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
 
     const { error } = await supabase
-      .from('pdf_documents')
+      .from('news_updates')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .eq('content_type', 'file'); // Only allow deleting file-type entries
 
     if (error) {
       return res.status(400).json({

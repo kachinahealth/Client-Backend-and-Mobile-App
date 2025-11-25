@@ -14,14 +14,14 @@ Run the SQL commands in `database/setup/complete-database-setup.sql` in your Sup
 *Skip this step if your database is already set up.*
 
 ### 2. Environment Configuration
-Create a `.env` file in the `backend/` directory with your Supabase credentials:
-```env
-SUPABASE_URL=your-supabase-project-url
-SUPABASE_ANON_KEY=your-supabase-anon-key
-JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-PORT=5000
-NODE_ENV=development
-```
+**Note: A `.env` file already exists in the `backend/` directory with database credentials configured. The application will automatically use this existing configuration.**
+
+The existing `.env` file contains:
+- Supabase project URL and API keys
+- JWT secret for authentication
+- Server port (5000) and environment settings
+
+If you need to modify these settings, you can edit the existing `backend/.env` file.
 
 ### 3. Install Dependencies
 ```bash

@@ -25,14 +25,14 @@ Comprehensive Express.js backend for the KachinaHealth client management portal 
    ```
 
 2. **Environment Variables:**
-   Create a `.env` file in the backend directory:
-   ```env
-   SUPABASE_URL=your-supabase-project-url
-   SUPABASE_ANON_KEY=your-supabase-anon-key
-   JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-   PORT=5000
-   NODE_ENV=development
-   ```
+   **Note: A `.env` file already exists in the backend directory with database credentials configured. The application will automatically use this existing configuration.**
+
+   The existing `.env` file contains:
+   - Supabase project URL and API keys
+   - JWT secret for authentication
+   - Server port (5000) and environment settings
+
+   If you need to modify these settings, you can edit the existing `.env` file.
 
 3. **Database Setup:**
    Run the SQL commands in `../database-setup.sql` in your Supabase SQL editor.

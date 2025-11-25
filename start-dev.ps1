@@ -30,9 +30,11 @@ if (!(Test-Path $frontendPath)) {
 
 # Check if .env file exists in backend
 $envFile = Join-Path $backendPath ".env"
-if (!(Test-Path $envFile)) {
+if (Test-Path $envFile) {
+    Write-Host "✅ Found .env file in backend directory with database credentials configured" -ForegroundColor Green
+} else {
     Write-Host "⚠️  Warning: .env file not found in backend directory" -ForegroundColor Yellow
-    Write-Host "Please create a .env file with your Supabase credentials before starting." -ForegroundColor Yellow
+    Write-Host "Please ensure a .env file exists with your Supabase credentials." -ForegroundColor Yellow
     Write-Host "See README.md for environment variable setup." -ForegroundColor Yellow
     Write-Host ""
 }
