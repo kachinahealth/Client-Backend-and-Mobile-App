@@ -4035,7 +4035,10 @@ app.post('/api/company/:company/documents', authenticateToken, upload.single('fi
   }
 });
 
-// Create PDF document (now in news_updates table)
+// Create PDF document (now in news_updates table) - TEMPORARILY COMMENTED OUT FOR DEBUGGING
+/*
+/*
+// Create PDF document (now in news_updates table) - COMMENTED OUT FOR DEBUGGING
 app.post('/api/pdfs', authenticateToken, async (req, res) => {
   try {
     const { title, description, category, fileUrl, fileName, fileSize, clinical_trial_id } = req.body;
@@ -4084,6 +4087,7 @@ app.post('/api/pdfs', authenticateToken, async (req, res) => {
       message: 'An unexpected error occurred'
     });
 });
+*/
 
 // Delete PDF document (now from news_updates table)
 app.delete('/api/pdfs/:id', authenticateToken, async (req, res) => {
